@@ -1,0 +1,7 @@
+/editor/*.palvl
+build
+.DS_Store
+local.properties
+.idea
+*.iml
+.gradle
