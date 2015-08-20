@@ -37,7 +37,7 @@ project(':common') {
 project(':desktop') {
     apply plugin: 'application'
 
-    mainClassName = 'pacandroid.desktop.Launcher'
+    mainClassName = 'me.lachlanap.pacandroid.desktop.Launcher'
 
     dependencies {
         compile project(':common')
@@ -49,14 +49,14 @@ project(':desktop') {
 
 project(':android') {
     apply plugin: 'android-sdk-manager'
-    apply plugin: 'android'
+    apply plugin: 'com.android.application'
 
     android {
         compileSdkVersion 21
         buildToolsVersion '22.0.1'
 
         defaultConfig {
-            applicationId 'me.lachlanap.pacandroid'
+            applicationId 'me.lachlanap.me.lachlanap.pacandroid'
             minSdkVersion 8
             targetSdkVersion 21
             versionCode 1
@@ -89,7 +89,7 @@ project(':android') {
 project(':editor') {
     apply plugin: 'application'
 
-    mainClassName = 'pacandroid.editor.Launcher'
+    mainClassName = 'me.lachlanap.pacandroid.editor.Launcher'
 
     dependencies {
         compile project(':common')

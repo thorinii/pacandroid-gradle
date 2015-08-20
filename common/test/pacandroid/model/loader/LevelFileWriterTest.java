@@ -1,4 +1,4 @@
-package pacandroid.model.loader;
+package me.lachlanap.pacandroid.model.loader;
 
 import static org.junit.Assert.fail;
 
@@ -9,9 +9,7 @@ import java.io.OutputStream;
 
 import org.junit.Test;
 
-import pacandroid.model.Level;
-import pacandroid.model.loader.LevelFileReader;
-import pacandroid.model.loader.LevelFileWriter;
+import me.lachlanap.pacandroid.model.Level;
 
 public class LevelFileWriterTest {
 

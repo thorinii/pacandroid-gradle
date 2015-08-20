@@ -2,13 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package pacandroid.model.loader;
+package me.lachlanap.pacandroid.model.loader;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import pacandroid.model.Level;
+import me.lachlanap.pacandroid.model.Level;
 
 /**
  *

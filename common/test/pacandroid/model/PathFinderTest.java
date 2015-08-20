@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package pacandroid.model;
+package me.lachlanap.pacandroid.model;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-import pacandroid.model.PathFinder.Node;
-import pacandroid.model.PathFinder.Path;
+import me.lachlanap.pacandroid.model.PathFinder.Node;
+import me.lachlanap.pacandroid.model.PathFinder.Path;
 
 /**
  *
