@@ -4,6 +4,8 @@
  */
 package me.lachlanap.pacandroid;
 
+import me.lachlanap.pacandroid.util.AppLog;
+
 /**
  *
  * @author lachlan

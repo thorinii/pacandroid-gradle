@@ -10,12 +10,13 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
-import me.lachlanap.pacandroid.AppLog;
 import me.lachlanap.pacandroid.PacAndroidGame;
 import me.lachlanap.pacandroid.controller.LevelController;
 import me.lachlanap.pacandroid.controller.SteeringController;
 import me.lachlanap.pacandroid.model.Level;
+import me.lachlanap.pacandroid.recorder.ScreenRecorder;
 import me.lachlanap.pacandroid.stats.HeatMap;
+import me.lachlanap.pacandroid.util.AppLog;
 import me.lachlanap.pacandroid.view.DefaultLevelRenderer;
 import me.lachlanap.pacandroid.view.LevelRenderer;
 import me.lachlanap.pacandroid.view.fonts.FontRenderer;
@@ -38,13 +39,13 @@ public class GameScreen extends AbstractScreen {
      * The size of 1 grid square (or 2 units): 32px
      */
     public static final int GRID_UNIT = 55;
-    public static final float MIN_DELTA = 0.015f;
-    public static final float REGULAR_DELTA = 0.015f;
+    public static final float FRAME_DELTA = 1f / 30;
     private final Level level;
     private LevelController controller;
     private LevelRenderer[] renderers;
     private SteeringController steeringController;
     private final FontRenderer fontRenderer;
+    private final ScreenRecorder screenRecorder;
     //
     private float lastSmallDelta;
 
@@ -52,21 +53,23 @@ public class GameScreen extends AbstractScreen {
         super(game);
         this.level = level;
         this.fontRenderer = fontRenderer;
+        this.screenRecorder = new ScreenRecorder();
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
 
-        if (delta >= MIN_DELTA || lastSmallDelta >= REGULAR_DELTA) {
-            updateLevel(REGULAR_DELTA);
+        if (delta >= FRAME_DELTA || lastSmallDelta >= FRAME_DELTA) {
+            updateLevel(FRAME_DELTA);
             lastSmallDelta = 0;
         } else {
-            updateLevel(MIN_DELTA);
             lastSmallDelta += delta;
         }
 
-        renderLevel(REGULAR_DELTA);
+        renderLevel(FRAME_DELTA);
+
+        screenRecorder.takeScreenshot();
     }
 
     private void updateLevel(float delta) {

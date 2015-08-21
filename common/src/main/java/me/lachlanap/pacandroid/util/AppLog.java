@@ -1,4 +1,4 @@
-package me.lachlanap.pacandroid;
+package me.lachlanap.pacandroid.util;
 
 public class AppLog {
 

@@ -6,9 +6,9 @@ package me.lachlanap.pacandroid.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import me.lachlanap.pacandroid.AppLog;
 import me.lachlanap.pacandroid.DesktopLog;
 import me.lachlanap.pacandroid.PacAndroidGame;
+import me.lachlanap.pacandroid.util.AppLog;
 
 /**
  * @author lachlan

@@ -1,10 +1,10 @@
 package me.lachlanap.pacandroid.controller;
 
 import com.badlogic.gdx.math.Vector2;
-import me.lachlanap.pacandroid.AppLog;
 import me.lachlanap.pacandroid.model.AndyAndroid;
 import me.lachlanap.pacandroid.model.Level;
 import me.lachlanap.pacandroid.screens.GameScreen;
+import me.lachlanap.pacandroid.util.AppLog;
 
 public class OldSteeringController {
 
