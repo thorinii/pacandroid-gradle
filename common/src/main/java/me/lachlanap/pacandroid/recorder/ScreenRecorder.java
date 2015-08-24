@@ -17,6 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class ScreenRecorder {
     public static final int BACKLOG_TO_DROP_FRAMES = 5;
+    public static final int DOWNSAMPLE_FACTOR = 16;
     private final ThreadPoolExecutor tpe = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
     private final ExecutorService executor = tpe;
     private int counter;
@@ -49,9 +50,16 @@ public class ScreenRecorder {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                savePixmap(frameNumber, pixmap);
+                Pixmap downsampled = downsample(pixmap);
+                savePixmap(frameNumber, downsampled);
             }
         });
+    }
+
+    private Pixmap downsample(Pixmap in) {
+        Pixmap out = new Pixmap(in.getWidth() / DOWNSAMPLE_FACTOR, in.getHeight() / DOWNSAMPLE_FACTOR, in.getFormat());
+        out.drawPixmap(in, 0, 0, in.getWidth(), in.getHeight(), 0, 0, out.getWidth(), out.getHeight());
+        return out;
     }
 
     private void savePixmap(int frameNumber, Pixmap pixmap) {
