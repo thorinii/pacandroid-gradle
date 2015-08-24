@@ -10,20 +10,27 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Records the rendered screen.
  */
 public class ScreenRecorder {
-    private final ExecutorService executor = Executors.newCachedThreadPool();
+    public static final int BACKLOG_TO_DROP_FRAMES = 5;
+    private final ThreadPoolExecutor tpe = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
+    private final ExecutorService executor = tpe;
     private int counter;
 
     public void takeScreenshot() {
         int frameNumber = counter;
         counter++;
 
-        if (frameNumber % 60 != 0)
+        if (frameNumber % 10 != 0)
             return;
+        if (tpe.getQueue().size() > BACKLOG_TO_DROP_FRAMES) {
+            System.out.println("Dropping a frame");
+            return;
+        }
 
         int width = Gdx.graphics.getWidth();
         int height = Gdx.graphics.getHeight();
