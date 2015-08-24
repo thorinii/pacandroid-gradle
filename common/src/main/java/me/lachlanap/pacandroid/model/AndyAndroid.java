@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 
 public class AndyAndroid extends GridLockedDynamicEntity {
 
-    public static float REGULAR_SPEED = 6f;
+    public static float REGULAR_SPEED = 12f;
     private final Level level;
 
     public AndyAndroid(Grid grid, Level level) {

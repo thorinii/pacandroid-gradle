@@ -29,11 +29,11 @@ public class ScreenRecorder {
         int height = Gdx.graphics.getHeight();
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGB888);
 
-        scrapScreen(width, height, pixmap);
+        scrapeScreen(width, height, pixmap);
         savePixmapAsync(frameNumber, pixmap);
     }
 
-    private void scrapScreen(int width, int height, Pixmap pixmap) {
+    private void scrapeScreen(int width, int height, Pixmap pixmap) {
         ByteBuffer pixels = pixmap.getPixels();
         Gdx.gl.glReadPixels(0, 0, width, height, GL20.GL_RGB, GL20.GL_UNSIGNED_BYTE, pixels);
     }

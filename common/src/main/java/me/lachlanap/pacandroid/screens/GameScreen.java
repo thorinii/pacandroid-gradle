@@ -30,7 +30,6 @@ import java.net.URL;
 import java.util.UUID;
 
 /**
- *
  * @author lachlan
  */
 public class GameScreen extends AbstractScreen {
@@ -60,7 +59,8 @@ public class GameScreen extends AbstractScreen {
     public void render(float delta) {
         super.render(delta);
 
-        if (delta >= FRAME_DELTA || lastSmallDelta >= FRAME_DELTA) {
+        boolean shouldUpdate = delta >= FRAME_DELTA || lastSmallDelta >= FRAME_DELTA;
+        if (shouldUpdate) {
             updateLevel(FRAME_DELTA);
             lastSmallDelta = 0;
         } else {
@@ -69,7 +69,8 @@ public class GameScreen extends AbstractScreen {
 
         renderLevel(FRAME_DELTA);
 
-        screenRecorder.takeScreenshot();
+        if (shouldUpdate)
+            screenRecorder.takeScreenshot();
     }
 
     private void updateLevel(float delta) {
@@ -110,7 +111,7 @@ public class GameScreen extends AbstractScreen {
         renderer.setSteeringController(steeringController);
 
         renderers = new LevelRenderer[]{
-            renderer, //new DebugWorldRenderer(false, level)
+                renderer, //new DebugWorldRenderer(false, level)
         };
 
     }
@@ -162,7 +163,7 @@ public class GameScreen extends AbstractScreen {
 
         @Override
         public boolean touchDown(int screenX, int screenY, int pointer,
-                int button) {
+                                 int button) {
             steeringController.touchDown(screenX, screenY);
             return true;
         }
@@ -218,9 +219,9 @@ public class GameScreen extends AbstractScreen {
             public void run() {
                 try {
                     URL dest = new URL("http://www.terrifictales.net/pa/stat-heatmap.php"
-                            + "?kqwu=aSD8dh2s09d2"
-                            + "&level=" + level.getName()
-                            + "&client=" + type);
+                                               + "?kqwu=aSD8dh2s09d2"
+                                               + "&level=" + level.getName()
+                                               + "&client=" + type);
                     HttpURLConnection connection = (HttpURLConnection) dest.openConnection();
 
                     connection.setDoOutput(true);
@@ -236,11 +237,10 @@ public class GameScreen extends AbstractScreen {
                     is.close();
 
 
-
                     dest = new URL("http://www.terrifictales.net/pa/stat-deathmap.php"
-                            + "?akeu=d83hs7uJsjeSufdk"
-                            + "&level=" + level.getName()
-                            + "&client=" + type);
+                                           + "?akeu=d83hs7uJsjeSufdk"
+                                           + "&level=" + level.getName()
+                                           + "&client=" + type);
                     connection = (HttpURLConnection) dest.openConnection();
 
                     connection.setDoOutput(true);
