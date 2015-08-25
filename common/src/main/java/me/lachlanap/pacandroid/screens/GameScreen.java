@@ -6,8 +6,6 @@ package me.lachlanap.pacandroid.screens;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Vector2;
 import me.lachlanap.pacandroid.PacAndroidGame;
@@ -95,15 +93,11 @@ public class GameScreen extends AbstractScreen {
     @Override
     public void show() {
         super.show();
-        Gdx.input.setInputProcessor(new InputHandler());
 
         controller = new LevelController(level);
 
-
-        steeringController = new SteeringController(level, controller,
-                                                    getScreenSize());
+        steeringController = new SteeringController(level, controller, getScreenSize());
         steeringController.setRoot(new Vector2(150, 150));
-
 
         DefaultLevelRenderer renderer = new DefaultLevelRenderer(
                 (int) getScreenSize().x, (int) getScreenSize().y,
@@ -114,89 +108,7 @@ public class GameScreen extends AbstractScreen {
                 renderer, //new DebugWorldRenderer(false, level)
         };
 
-    }
-
-    class InputHandler implements InputProcessor {
-
-        @Override
-        public boolean keyDown(int keycode) {
-            switch (keycode) {
-                case Keys.LEFT:
-                    controller.leftPressed();
-                    break;
-                case Keys.RIGHT:
-                    controller.rightPressed();
-                    break;
-                case Keys.UP:
-                    controller.upPressed();
-                    break;
-                case Keys.DOWN:
-                    controller.downPressed();
-                    break;
-            }
-            return true;
-        }
-
-        @Override
-        public boolean keyUp(int keycode) {
-            switch (keycode) {
-                case Keys.LEFT:
-                    controller.leftReleased();
-                    break;
-                case Keys.RIGHT:
-                    controller.rightReleased();
-                    break;
-                case Keys.UP:
-                    controller.upReleased();
-                    break;
-                case Keys.DOWN:
-                    controller.downReleased();
-                    break;
-            }
-            return true;
-        }
-
-        @Override
-        public boolean keyTyped(char character) {
-            return false;
-        }
-
-        @Override
-        public boolean touchDown(int screenX, int screenY, int pointer,
-                                 int button) {
-            steeringController.touchDown(screenX, screenY);
-            return true;
-        }
-
-        @Override
-        public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-            steeringController.touchUp(screenX, screenY);
-
-            if (level.isGameOver()) {
-                writeHeatmap();
-                gotoScreen(new GameOverScreen(
-                        getGame(), fontRenderer,
-                        level.getTimeOnLevel(), level.getScore()));
-            }
-
-            return true;
-        }
-
-        @Override
-        public boolean touchDragged(int screenX, int screenY, int pointer) {
-            steeringController.touchDragged(screenX, screenY);
-            return true;
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-            return true;
-        }
-
-        @Override
-        public boolean scrolled(int amount) {
-            return true;
-        }
+        Gdx.input.setInputProcessor(new InputHandler(controller, steeringController));
     }
 
     private void writeHeatmap() {
