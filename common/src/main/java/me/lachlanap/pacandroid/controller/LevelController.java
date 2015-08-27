@@ -21,6 +21,10 @@ public class LevelController {
         this.ticks = 0;
     }
 
+    public Level getLevel() {
+        return level;
+    }
+
     public void leftPressed() {
         left = true;
     }
@@ -57,14 +61,20 @@ public class LevelController {
         this.touchControl = touchControl;
     }
 
-    /**
-     * Returns the left, right, up, and down as a packed byte: 0b0000LRUD
-     */
-    public byte getPackedInputState() {
-        return (byte) ((down ? 1 : 0) +
-                (up ? 2 : 0) +
-                (right ? 4 : 0) +
-                (left ? 8 : 0));
+    public boolean isLeft() {
+        return left;
+    }
+
+    public boolean isRight() {
+        return right;
+    }
+
+    public boolean isUp() {
+        return up;
+    }
+
+    public boolean isDown() {
+        return down;
     }
 
     public void update(float delta) throws GameException {

@@ -12,6 +12,7 @@ import me.lachlanap.pacandroid.PacAndroidGame;
 import me.lachlanap.pacandroid.controller.LevelController;
 import me.lachlanap.pacandroid.controller.SteeringController;
 import me.lachlanap.pacandroid.model.Level;
+import me.lachlanap.pacandroid.model.Powerup;
 import me.lachlanap.pacandroid.recorder.GameRecorder;
 import me.lachlanap.pacandroid.stats.HeatMap;
 import me.lachlanap.pacandroid.util.AppLog;
@@ -58,7 +59,7 @@ public class GameScreen extends AbstractScreen {
 
         boolean shouldUpdate = delta >= FRAME_DELTA || lastSmallDelta >= FRAME_DELTA;
         if (shouldUpdate) {
-            updateLevel(FRAME_DELTA);
+            updateLevel(level.getCurrentPowerup() == Powerup.LevelStartFreeze ? FRAME_DELTA : (1f / 30));
             lastSmallDelta = 0;
         } else {
             lastSmallDelta += delta;
