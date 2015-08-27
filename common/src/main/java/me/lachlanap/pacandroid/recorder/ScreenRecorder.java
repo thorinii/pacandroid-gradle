@@ -20,14 +20,13 @@ public class ScreenRecorder {
     public static final int DOWNSAMPLE_FACTOR = 16;
     private final ThreadPoolExecutor tpe = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
     private final ExecutorService executor = tpe;
-    private int counter;
+    private final FileHandle outDir;
 
-    public void takeScreenshot() {
-        int frameNumber = counter;
-        counter++;
+    public ScreenRecorder(FileHandle outDir) {
+        this.outDir = outDir;
+    }
 
-        if (frameNumber % 10 != 0)
-            return;
+    public void takeScreenshot(int tick) {
         if (tpe.getQueue().size() > BACKLOG_TO_DROP_FRAMES) {
             System.out.println("Dropping a frame");
             return;
@@ -38,7 +37,7 @@ public class ScreenRecorder {
         Pixmap pixmap = new Pixmap(width, height, Pixmap.Format.RGB888);
 
         scrapeScreen(width, height, pixmap);
-        savePixmapAsync(frameNumber, pixmap);
+        savePixmapAsync(tick, pixmap);
     }
 
     private void scrapeScreen(int width, int height, Pixmap pixmap) {
@@ -64,7 +63,7 @@ public class ScreenRecorder {
 
     private void savePixmap(int frameNumber, Pixmap pixmap) {
         try {
-            FileHandle out = Gdx.files.absolute(String.format("/tmp/screenshot.%05d.png", frameNumber));
+            FileHandle out = outDir.child(String.format("downsampled.%07d.png", frameNumber));
 
             PixmapIO.PNG writer = new PixmapIO.PNG((int) (pixmap.getWidth() * pixmap.getHeight() * 1.5f));
             try {

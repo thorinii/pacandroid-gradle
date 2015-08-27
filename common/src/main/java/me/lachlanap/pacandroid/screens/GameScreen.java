@@ -12,7 +12,7 @@ import me.lachlanap.pacandroid.PacAndroidGame;
 import me.lachlanap.pacandroid.controller.LevelController;
 import me.lachlanap.pacandroid.controller.SteeringController;
 import me.lachlanap.pacandroid.model.Level;
-import me.lachlanap.pacandroid.recorder.ScreenRecorder;
+import me.lachlanap.pacandroid.recorder.GameRecorder;
 import me.lachlanap.pacandroid.stats.HeatMap;
 import me.lachlanap.pacandroid.util.AppLog;
 import me.lachlanap.pacandroid.view.DefaultLevelRenderer;
@@ -42,7 +42,7 @@ public class GameScreen extends AbstractScreen {
     private LevelRenderer[] renderers;
     private SteeringController steeringController;
     private final FontRenderer fontRenderer;
-    private final ScreenRecorder screenRecorder;
+    private GameRecorder gameRecorder;
     //
     private float lastSmallDelta;
 
@@ -50,7 +50,6 @@ public class GameScreen extends AbstractScreen {
         super(game);
         this.level = level;
         this.fontRenderer = fontRenderer;
-        this.screenRecorder = new ScreenRecorder();
     }
 
     @Override
@@ -67,8 +66,9 @@ public class GameScreen extends AbstractScreen {
 
         renderLevel(FRAME_DELTA);
 
-        if (shouldUpdate)
-            screenRecorder.takeScreenshot();
+        if (shouldUpdate) {
+            gameRecorder.takeSnapshot();
+        }
     }
 
     private void updateLevel(float delta) {
@@ -96,7 +96,7 @@ public class GameScreen extends AbstractScreen {
 
         controller = new LevelController(level);
 
-        steeringController = new SteeringController(level, controller, getScreenSize());
+        steeringController = new SteeringController(controller, getScreenSize());
         steeringController.setRoot(new Vector2(150, 150));
 
         DefaultLevelRenderer renderer = new DefaultLevelRenderer(
@@ -109,6 +109,8 @@ public class GameScreen extends AbstractScreen {
         };
 
         Gdx.input.setInputProcessor(new InputHandler(controller, steeringController));
+
+        this.gameRecorder = new GameRecorder(controller);
     }
 
     private void writeHeatmap() {

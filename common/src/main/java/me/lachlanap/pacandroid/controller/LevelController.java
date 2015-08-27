@@ -57,6 +57,16 @@ public class LevelController {
         this.touchControl = touchControl;
     }
 
+    /**
+     * Returns the left, right, up, and down as a packed byte: 0b0000LRUD
+     */
+    public byte getPackedInputState() {
+        return (byte) ((down ? 1 : 0) +
+                (up ? 2 : 0) +
+                (right ? 4 : 0) +
+                (left ? 8 : 0));
+    }
+
     public void update(float delta) throws GameException {
         ticks++;
 
@@ -186,24 +196,23 @@ public class LevelController {
         if (left || right || up || down) {
             if (left) {
                 level.getAndyAndroid()
-                        .setVelocity(new Vector2(-AndyAndroid.REGULAR_SPEED, 0));
+                     .setVelocity(new Vector2(-AndyAndroid.REGULAR_SPEED, 0));
             } else if (right) {
                 level.getAndyAndroid()
-                        .setVelocity(new Vector2(AndyAndroid.REGULAR_SPEED, 0));
+                     .setVelocity(new Vector2(AndyAndroid.REGULAR_SPEED, 0));
             }
 
             if (up) {
                 level.getAndyAndroid()
-                        .setVelocity(new Vector2(0, AndyAndroid.REGULAR_SPEED));
+                     .setVelocity(new Vector2(0, AndyAndroid.REGULAR_SPEED));
             } else if (down) {
                 level.getAndyAndroid()
-                        .setVelocity(new Vector2(0, -AndyAndroid.REGULAR_SPEED));
+                     .setVelocity(new Vector2(0, -AndyAndroid.REGULAR_SPEED));
             }
         } else if (touchControl != null && touchControl.len() > 0) {
             level.getAndyAndroid()
-                    .setVelocity(
-                    touchControl.cpy()
-                    .scl(AndyAndroid.REGULAR_SPEED));
+                 .setVelocity(touchControl.cpy()
+                                          .scl(AndyAndroid.REGULAR_SPEED));
         }
     }
 

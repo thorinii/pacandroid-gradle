@@ -1,22 +1,18 @@
 package me.lachlanap.pacandroid.controller;
 
 import com.badlogic.gdx.math.Vector2;
-import me.lachlanap.pacandroid.model.Level;
 
 public class SteeringController {
 
     private static final float MAX = 100;
     private static final float MIN = 20;
-    private final Level level;
     private final LevelController controller;
     private final Vector2 screenSize;
     private final Vector2 pos = new Vector2();
     private Vector2 root;
     private boolean down;
 
-    public SteeringController(Level world, LevelController controller,
-            Vector2 screenSize) {
-        this.level = world;
+    public SteeringController(LevelController controller, Vector2 screenSize) {
         this.controller = controller;
         this.screenSize = screenSize;
     }
