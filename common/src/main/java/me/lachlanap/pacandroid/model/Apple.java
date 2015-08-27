@@ -57,14 +57,7 @@ public class Apple extends DynamicEntity {
         me = getPosition();
         vel = getVelocity();
 
-        //me.x += 0.001f;
-        //me.y += 0.001f;
-
-        if (level.getCurrentPowerup() == Powerup.KillAll) {
-            markForKill();
-        } else {
-            vel.add(getRegularSteering(ticks));
-        }
+        vel.add(getRegularSteering(ticks));
 
         wallBounce(grid, me, vel);
 

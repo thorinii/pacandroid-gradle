@@ -77,8 +77,6 @@ public class LevelController {
 
         detectCollisions();
 
-        processPowerups();
-
         Timers.update(delta);
     }
 
@@ -118,9 +116,6 @@ public class LevelController {
 
     private void spawnApple(Level l) {
         Grid g = l.getGrid();
-
-        if (level.getCurrentPowerup() == Powerup.KillAll)
-            return;
 
         if (l.getEntitiesByType(Apple.class).size() < l.getMaxEnemies()) {
             for (int i = 0; i < g.getWidth(); i++) {
@@ -237,20 +232,6 @@ public class LevelController {
                         && epos.y + ebounds.y > opos.y)
                     e.collideWith(o);
             }
-        }
-    }
-
-    /*
-     * Processes some transient powerups
-     */
-    private void processPowerups() {
-        switch (level.getCurrentPowerup()) {
-            case DoubleScore:
-                level.getScore().doubleScore();
-                break;
-            case NewLife:
-                level.addLife();
-                break;
         }
     }
 }

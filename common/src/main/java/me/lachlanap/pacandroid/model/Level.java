@@ -220,17 +220,6 @@ public class Level {
     }
 
     public void choosePowerup(int x, int y) {
-        Powerup[] valid = new Powerup[]{
-            Powerup.KillAll,
-            Powerup.Edible,
-            Powerup.DoubleScore,
-            Powerup.NewLife};
-
-        int hash = 23;
-        hash = hash * 53 + x;
-        hash = hash * 53 + y;
-        hash %= valid.length;
-
-        setCurrentPowerup(valid[hash]);
+        setCurrentPowerup(Powerup.Edible);
     }
 }
