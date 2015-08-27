@@ -9,7 +9,7 @@ package me.lachlanap.pacandroid.model;
  */
 public enum Powerup {
 
-    Null(-1, null), Edible(7000, "Edible"), LevelStartFreeze(3000, null, true);
+    Null(-1, null), Edible(3000, "Edible"), LevelStartFreeze(3000, null, true);
 
     Powerup(int buffMillis, String name) {
         this.buffMillis = buffMillis;

@@ -11,8 +11,8 @@ public class Apple extends DynamicEntity {
     public static final int AI_PATHFIND = 1;
     public static float CHASE_SPEED = 12f;
     public static float WANDER_SPEED = 9f;
-    public static float COLLISION_RESPONSE = -50f;
-    public static float DAMPING = .97f;
+    public static float COLLISION_RESPONSE = -70f;
+    public static float DAMPING = .99999f;
     private final Grid grid;
     private Level level;
     private int ticks;
@@ -138,6 +138,9 @@ public class Apple extends DynamicEntity {
             vel.x += penetration.x * COLLISION_RESPONSE;
         else
             vel.y += penetration.y * COLLISION_RESPONSE;
+
+        me.x -= penetration.x + 0.01f;
+        me.y -= penetration.y + 0.01f;
     }
 
     public Path getPath() {
@@ -171,7 +174,7 @@ public class Apple extends DynamicEntity {
 
             // if the first node (usually on top of us) is too far away, use it
             if (i == 0)
-                if (d > 10f)
+                if (d > 3f)
                     break;
                 else
                     continue;
@@ -183,17 +186,22 @@ public class Apple extends DynamicEntity {
         if (dest == null) {
             desired = andy.cpy().sub(me).nor().scl(CHASE_SPEED);
             steering.add(desired.cpy().sub(vel));
+            steering.nor();
         } else {
-            desired = dest.sub(me).nor().scl(CHASE_SPEED);
+            Vector2 toDestination = dest.sub(me);
+            float distToDestination = toDestination.len();
+
             steering.add(desired.cpy().sub(vel));
+            steering.nor();
+            if (distToDestination < 0.4) {
+                if (Math.abs(vel.x) > Math.abs(vel.y))
+                    steering.x = vel.x * -0.4f;
+                else
+                    steering.y = vel.y * -0.4f;
+            }
+
+            desired = toDestination.nor().scl(CHASE_SPEED);
         }
-
-        steering.nor();
-
-        if (steering.len()
-                > 0.8f)
-            steering.nor().scl(0.8f);
-
         return steering;
     }
 }

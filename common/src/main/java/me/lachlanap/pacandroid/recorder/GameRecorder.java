@@ -26,7 +26,7 @@ public class GameRecorder {
     public GameRecorder(LevelController levelController) {
         this.levelController = levelController;
 
-        FileHandle outDir = Gdx.files.absolute("/tmp").child("pa_" + Gdx.app.hashCode());
+        FileHandle outDir = Gdx.files.absolute("/tmp").child("pa_" + Gdx.app.hashCode() + Math.round(Math.random() * 10000));
         if (outDir.exists()) outDir.deleteDirectory();
         outDir.mkdirs();
 

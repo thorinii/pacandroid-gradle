@@ -31,7 +31,7 @@ public class LevelLoader {
 
             BufferedReader br = new BufferedReader(
                     new InputStreamReader(
-                    levelsFile.read()));
+                            levelsFile.read()));
             try {
                 List<String> lines = new ArrayList<String>();
                 String line;
@@ -95,6 +95,7 @@ public class LevelLoader {
 
     protected void setupLevel(Level level) {
         spawnAndroid(level);
+        randomisePowerups(level);
     }
 
     private void spawnAndroid(Level l) {
@@ -122,6 +123,31 @@ public class LevelLoader {
             l.spawnEntity(entity);
         } else {
             throw new IllegalStateException("Could not find Android Spawner");
+        }
+    }
+
+    private void randomisePowerups(Level level) {
+        Grid g = level.getGrid();
+        int numberOfPowerups = 0;
+        for (int i = 0; i < g.getWidth(); i++)
+            for (int j = 0; j < g.getHeight(); j++)
+                if (g.get(i, j) == Grid.GRID_POWERUP)
+                    numberOfPowerups++;
+
+        int powerupsToKeep = 3;
+        int powerupsToRemove = numberOfPowerups - powerupsToKeep;
+
+        while (powerupsToRemove > 0) {
+            for (int i = 0; i < g.getWidth(); i++) {
+                for (int j = 0; j < g.getHeight(); j++) {
+                    if (g.get(i, j) == Grid.GRID_POWERUP) {
+                        if (Math.random() > 0.8) {
+                            g.set(i, j, Grid.GRID_JELLYBEAN);
+                            powerupsToRemove--;
+                        }
+                    }
+                }
+            }
         }
     }
 }
