@@ -15,15 +15,22 @@ import me.lachlanap.pacandroid.view.fonts.FontRenderer;
  * @author lachlan
  */
 public class PacAndroidGame extends Game {
+    public enum Mode {
+        Playing, PlayingAndRecording, PlayingWithNeuralNetwork,
+        TrainingNeuralNetworkHeadless, TrainingNeuralNetworkHeaded
+    }
 
+    private final Mode mode;
     private LevelLoader loader;
     private FontRenderer fontRenderer;
 
     public PacAndroidGame(LevelLoader levelLoader) {
+        this.mode = Mode.Playing;
         this.loader = levelLoader;
     }
 
-    public PacAndroidGame() {
+    public PacAndroidGame(Mode mode) {
+        this.mode = mode;
     }
 
     @Override
@@ -45,7 +52,7 @@ public class PacAndroidGame extends Game {
 
     public void play() {
         Level level = loader.loadNextLevel();
-        setScreen(new GameScreen(this, level, fontRenderer));
+        setScreen(new GameScreen(mode, this, level, fontRenderer));
     }
 
     public void mainMenu() {

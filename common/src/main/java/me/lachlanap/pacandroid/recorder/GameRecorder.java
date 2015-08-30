@@ -21,22 +21,30 @@ public class GameRecorder {
     private final ScreenRecorder screenRecorder;
     private final LevelController levelController;
     private final DataOutputStream out;
+    private Listener listener;
     private int tick;
 
-    public GameRecorder(LevelController levelController) {
+    public GameRecorder(LevelController levelController, boolean writingToDisk) {
         this.levelController = levelController;
 
-        FileHandle outDir = Gdx.files.absolute("/tmp").child("pa_" + Gdx.app.hashCode() + Math.round(Math.random() * 10000));
-        if (outDir.exists()) outDir.deleteDirectory();
-        outDir.mkdirs();
+        FileHandle outDir = Gdx.files.local("training").child("pa_" + Math.round(Math.random() * 10000000));
+        if (writingToDisk && outDir.exists()) outDir.deleteDirectory();
+        if (writingToDisk) outDir.mkdirs();
 
         this.screenRecorder = new ScreenRecorder(outDir);
 
-        try {
-            this.out = new DataOutputStream(new FileOutputStream(outDir.child("player_input.bin").file()));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Failed to open player_input.bin", e);
-        }
+        if (writingToDisk) {
+            try {
+                this.out = new DataOutputStream(new FileOutputStream(outDir.child("player_input.bin").file()));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("Failed to open player_input.bin", e);
+            }
+        } else
+            this.out = null;
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     public void takeSnapshot() {
@@ -76,26 +84,48 @@ public class GameRecorder {
             }
         }
 
-        try {
-            out.writeInt(0x9ACAD01D);
-            out.writeDouble(levelController.isLeft() ? 1.0 : 0.0);
-            out.writeDouble(levelController.isRight() ? 1.0 : 0.0);
-            out.writeDouble(levelController.isUp() ? 1.0 : 0.0);
-            out.writeDouble(levelController.isDown() ? 1.0 : 0.0);
+        double[] inputState = new double[]{
+                levelController.isLeft() ? 1.0 : 0.0,
+                levelController.isRight() ? 1.0 : 0.0,
+                levelController.isUp() ? 1.0 : 0.0,
+                levelController.isDown() ? 1.0 : 0.0
+        };
+        double[] gameState = concatenate(wallSightGrid, rewardSightGrid, enemySightGrid, new double[]{
+                Math.max(0.0, Math.min(1, level.getLives() / 3.0)),
+                level.getCurrentPowerup() == Powerup.Edible ? 1.0 : 0.0
+        });
 
-            for (double d : wallSightGrid)
-                out.writeDouble(d);
-            for (double d : rewardSightGrid)
-                out.writeDouble(d);
-            for (double d : enemySightGrid)
-                out.writeDouble(d);
-
-            out.writeDouble(Math.max(0.0, Math.min(1, level.getLives() / 3.0)));
-            out.writeDouble(level.getCurrentPowerup() == Powerup.Edible ? 1.0 : 0.0);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (out != null) {
+            try {
+                for (double d : inputState)
+                    out.writeDouble(d);
+                for (double d : gameState)
+                    out.writeDouble(d);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
+        if (listener != null)
+            listener.onSnapshotTaken(tick, gameState, inputState);
+
         tick++;
+    }
+
+    private double[] concatenate(double[]... arrays) {
+        int totalSize = 0;
+        for (double[] array : arrays)
+            totalSize += array.length;
+        double[] tmp = new double[totalSize];
+        int offset = 0;
+        for (double[] array : arrays) {
+            System.arraycopy(array, 0, tmp, offset, array.length);
+            offset += array.length;
+        }
+        return tmp;
+    }
+
+    public interface Listener {
+        void onSnapshotTaken(int tick, double[] gameState, double[] inputState);
     }
 }

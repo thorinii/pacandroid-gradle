@@ -77,6 +77,15 @@ public class LevelController {
         return down;
     }
 
+    @Override
+    public String toString() {
+        return
+                (left ? "L" : "_") +
+                        (right ? "R" : "_") +
+                        (up ? "U" : "_") +
+                        (down ? "D" : "_");
+    }
+
     public void update(float delta) throws GameException {
         ticks++;
 
@@ -128,23 +137,15 @@ public class LevelController {
         Grid g = l.getGrid();
 
         if (l.getEntitiesByType(Apple.class).size() < l.getMaxEnemies()) {
-            for (int i = 0; i < g.getWidth(); i++) {
-                for (int j = 0; j < g.getHeight(); j++) {
-                    if (g.get(i, j) == Grid.GRID_ENEMY_SPAWN && randomTime(50)) {
-                        int[] xy = findNearestEmpty(l, i, j);
-
                         Apple entity = new Apple(g);
                         entity.setLevel(level);
                         entity.setPosition(new Vector2(
-                                xy[0] * Level.GRID_UNIT_SIZE,
-                                xy[1] * Level.GRID_UNIT_SIZE));
+                                6 * Level.GRID_UNIT_SIZE,
+                                8 * Level.GRID_UNIT_SIZE));
 
                         l.spawnEntity(entity);
 
                         return;
-                    }
-                }
-            }
         }
     }
 

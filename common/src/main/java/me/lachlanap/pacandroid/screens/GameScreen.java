@@ -19,11 +19,10 @@ import me.lachlanap.pacandroid.util.AppLog;
 import me.lachlanap.pacandroid.view.DefaultLevelRenderer;
 import me.lachlanap.pacandroid.view.LevelRenderer;
 import me.lachlanap.pacandroid.view.fonts.FontRenderer;
+import org.encog.neural.networks.BasicNetwork;
+import org.encog.persist.EncogDirectoryPersistence;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
@@ -38,6 +37,7 @@ public class GameScreen extends AbstractScreen {
      */
     public static final int GRID_UNIT = 55;
     public static final float FRAME_DELTA = 1f / 30;
+    private final PacAndroidGame.Mode mode;
     private final Level level;
     private LevelController controller;
     private LevelRenderer[] renderers;
@@ -47,8 +47,9 @@ public class GameScreen extends AbstractScreen {
     //
     private float lastSmallDelta;
 
-    public GameScreen(PacAndroidGame game, Level level, FontRenderer fontRenderer) {
+    public GameScreen(PacAndroidGame.Mode mode, PacAndroidGame game, Level level, FontRenderer fontRenderer) {
         super(game);
+        this.mode = mode;
         this.level = level;
         this.fontRenderer = fontRenderer;
     }
@@ -59,7 +60,8 @@ public class GameScreen extends AbstractScreen {
 
         boolean shouldUpdate = delta >= FRAME_DELTA || lastSmallDelta >= FRAME_DELTA;
         if (shouldUpdate) {
-            updateLevel(level.getCurrentPowerup() == Powerup.LevelStartFreeze ? FRAME_DELTA : (1f / 30));
+            System.out.println(controller.toString());
+            updateLevel(FRAME_DELTA);
             lastSmallDelta = 0;
         } else {
             lastSmallDelta += delta;
@@ -67,7 +69,7 @@ public class GameScreen extends AbstractScreen {
 
         renderLevel(FRAME_DELTA);
 
-        if (shouldUpdate) {
+        if (shouldUpdate && gameRecorder != null) {
             gameRecorder.takeSnapshot();
         }
     }
@@ -111,7 +113,30 @@ public class GameScreen extends AbstractScreen {
 
         Gdx.input.setInputProcessor(new InputHandler(controller, steeringController));
 
-        this.gameRecorder = new GameRecorder(controller);
+        if (mode != PacAndroidGame.Mode.Playing)
+            this.gameRecorder = new GameRecorder(controller,
+                                                 mode == PacAndroidGame.Mode.PlayingAndRecording);
+
+        if (mode == PacAndroidGame.Mode.PlayingWithNeuralNetwork)
+            gameRecorder.setListener(new GameRecorder.Listener() {
+                BasicNetwork network = (BasicNetwork) EncogDirectoryPersistence.loadObject(new File("network.eg"));
+
+                @Override
+                public void onSnapshotTaken(int tick, double[] gameState, double[] inputState) {
+                    if (tick % 3 != 0) return;
+//                if (true) return;
+                    network.compute(gameState, inputState);
+
+                    if (inputState[0] > Math.random()) controller.leftPressed();
+                    else controller.leftReleased();
+                    if (inputState[1] > Math.random()) controller.rightPressed();
+                    else controller.rightReleased();
+                    if (inputState[2] > Math.random()) controller.upPressed();
+                    else controller.upReleased();
+                    if (inputState[3] > Math.random()) controller.downPressed();
+                    else controller.downReleased();
+                }
+            });
     }
 
     private void writeHeatmap() {

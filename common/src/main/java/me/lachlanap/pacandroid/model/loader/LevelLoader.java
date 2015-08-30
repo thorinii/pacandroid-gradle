@@ -40,8 +40,6 @@ public class LevelLoader {
                     lines.add(line);
                 }
 
-                System.out.println(lines);
-
                 return lines.toArray(new String[lines.size()]);
             } finally {
                 br.close();
