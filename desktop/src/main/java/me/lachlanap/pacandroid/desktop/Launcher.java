@@ -90,52 +90,56 @@ public class Launcher {
     private static void trainHeadless() {
         Gdx.files = new LwjglFiles();
 
-        File localNetwork = new File("network.eg");
-        final BasicNetwork network;
-        if(localNetwork.exists()) {
-            network = (BasicNetwork) EncogDirectoryPersistence.loadObject(localNetwork);
-        } else {network = new BasicNetwork();
-            network.addLayer(new BasicLayer(null, true, 77));
-            network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 30));
-            network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 10));
-            network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 8));
-            network.addLayer(new BasicLayer(new ActivationSigmoid(), false, 4));
-            network.getStructure().finalizeStructure();
-            network.reset();
+        while(System.currentTimeMillis() > 0) {
+            File localNetwork = new File("network.eg");
+            final BasicNetwork network;
+            if(localNetwork.exists()) {
+                network = (BasicNetwork) EncogDirectoryPersistence.loadObject(localNetwork);
+            } else {network = new BasicNetwork();
+                network.addLayer(new BasicLayer(null, true, 77));
+                network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 30));
+                network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 10));
+                network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 8));
+                network.addLayer(new BasicLayer(new ActivationSigmoid(), false, 4));
+                network.getStructure().finalizeStructure();
+                network.reset();
+            }
+
+            CalculateScore fitnessFunction = new PacAndroidFitnessFunction();
+
+            MLMethodGeneticAlgorithm trainer = new MLMethodGeneticAlgorithm(new MethodFactory() {
+                @Override
+                public MLMethod factor() {
+                    MLMethod result = (MLMethod) ObjectCloner.deepCopy(network);
+                    ((MLResettable) result).reset();
+                    return result;
+                }
+            }, fitnessFunction, 1000);
+
+
+            final long start = System.currentTimeMillis();
+            do {
+                trainer.iteration();
+
+                final long current = System.currentTimeMillis();
+                final long elapsedSeconds = (current - start) / 1000;
+
+                int iteration = trainer.getIteration();
+
+                System.out.println("Iteration #" + Format.formatInteger(iteration)
+                                        + " Best:" + Format.formatDouble(trainer.getGenetic().getBestGenome().getScore(), 0)
+                                        + " elapsed time = " + Format.formatTimeSpan((int) elapsedSeconds));
+
+                if(iteration % 10 == 0) {
+                    EncogDirectoryPersistence.saveObject(new File("network.eg"), trainer.getMethod());
+                }
+            } while (trainer.getIteration() < 1000);
+            trainer.finishTraining();
+
+            EncogDirectoryPersistence.saveObject(new File("network.eg"), trainer.getMethod());
+
+            System.out.println("RESTARTING GA");
         }
-
-        CalculateScore fitnessFunction = new PacAndroidFitnessFunction();
-
-        MLMethodGeneticAlgorithm trainer = new MLMethodGeneticAlgorithm(new MethodFactory() {
-            @Override
-            public MLMethod factor() {
-                MLMethod result = (MLMethod) ObjectCloner.deepCopy(network);
-                ((MLResettable) result).reset();
-                return result;
-            }
-        }, fitnessFunction, 150);
-
-
-        final long start = System.currentTimeMillis();
-        do {
-            trainer.iteration();
-
-            final long current = System.currentTimeMillis();
-            final long elapsedSeconds = (current - start) / 1000;
-
-            int iteration = trainer.getIteration();
-
-            System.out.println("Iteration #" + Format.formatInteger(iteration)
-                                       + " Best:" + Format.formatDouble(trainer.getGenetic().getBestGenome().getScore(), 0)
-                                       + " elapsed time = " + Format.formatTimeSpan((int) elapsedSeconds));
-
-            if(iteration % 10 == 0) {
-                EncogDirectoryPersistence.saveObject(new File("network.eg"), trainer.getMethod());
-            }
-        } while (start > -1);
-        trainer.finishTraining();
-
-        EncogDirectoryPersistence.saveObject(new File("network.eg"), trainer.getMethod());
         Encog.getInstance().shutdown();
     }
 
@@ -143,6 +147,14 @@ public class Launcher {
         @Override
         public double calculateScore(final MLMethod method) {
             final BasicNetwork network = (BasicNetwork) method;
+            final int COUNT = 7;
+            double total = 0;
+            for (int i = 0; i < COUNT; i++)
+                total += calculateScoreOnce(network);
+            return total/COUNT;
+        }
+
+        private double calculateScoreOnce(final BasicNetwork network) {
             LevelLoader loader = new LevelLoader();
             Level level = loader.loadNextLevel();
 
@@ -180,7 +192,7 @@ public class Launcher {
 
 //            return level.getScore().getScore() + level.getLives() * 100;
 //            return level.getLives() * 100;
-            return frame + level.getScore().getScore()*10;
+            return frame;// + level.getScore().getScore()*10;
         }
 
         private void updateLevel(Level level, LevelController controller, float delta) {
