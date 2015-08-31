@@ -17,18 +17,17 @@ import me.lachlanap.pacandroid.model.loader.LevelLoader;
 import me.lachlanap.pacandroid.recorder.GameRecorder;
 import me.lachlanap.pacandroid.util.AppLog;
 import org.encog.Encog;
-import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.CalculateScore;
 import org.encog.ml.MLMethod;
-import org.encog.ml.MLResettable;
-import org.encog.ml.MethodFactory;
-import org.encog.ml.genetic.MLMethodGeneticAlgorithm;
-import org.encog.neural.networks.BasicNetwork;
-import org.encog.neural.networks.layers.BasicLayer;
+import org.encog.ml.data.MLData;
+import org.encog.ml.data.basic.BasicMLData;
+import org.encog.ml.ea.train.basic.TrainEA;
+import org.encog.neural.neat.NEATNetwork;
+import org.encog.neural.neat.NEATPopulation;
+import org.encog.neural.neat.NEATUtil;
 import org.encog.neural.networks.training.TrainingError;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
-import org.encog.util.obj.ObjectCloner;
 
 import java.io.File;
 
@@ -91,30 +90,17 @@ public class Launcher {
         Gdx.files = new LwjglFiles();
 
         File localNetwork = new File("network.eg");
-        final BasicNetwork network;
+        final NEATPopulation population;
         if(localNetwork.exists()) {
-            network = (BasicNetwork) EncogDirectoryPersistence.loadObject(localNetwork);
-        } else {network = new BasicNetwork();
-            network.addLayer(new BasicLayer(null, true, 77));
-            network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 30));
-            network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 10));
-            network.addLayer(new BasicLayer(new ActivationSigmoid(), true, 8));
-            network.addLayer(new BasicLayer(new ActivationSigmoid(), false, 4));
-            network.getStructure().finalizeStructure();
-            network.reset();
+            population = (NEATPopulation) EncogDirectoryPersistence.loadObject(localNetwork);
+        } else {
+            population = new NEATPopulation(77, 4, 1000);
+            population.reset();
         }
 
         CalculateScore fitnessFunction = new PacAndroidFitnessFunction();
 
-        MLMethodGeneticAlgorithm trainer = new MLMethodGeneticAlgorithm(new MethodFactory() {
-            @Override
-            public MLMethod factor() {
-                MLMethod result = (MLMethod) ObjectCloner.deepCopy(network);
-                ((MLResettable) result).reset();
-                return result;
-            }
-        }, fitnessFunction, 150);
-
+        TrainEA trainer = NEATUtil.constructNEATTrainer(population, fitnessFunction);
 
         final long start = System.currentTimeMillis();
         do {
@@ -126,10 +112,10 @@ public class Launcher {
             int iteration = trainer.getIteration();
 
             System.out.println("Iteration #" + Format.formatInteger(iteration)
-                                       + " Best:" + Format.formatDouble(trainer.getGenetic().getBestGenome().getScore(), 0)
+                                       + " Best:" + Format.formatDouble(trainer.getBestGenome().getScore(), 0)
                                        + " elapsed time = " + Format.formatTimeSpan((int) elapsedSeconds));
 
-            if(iteration % 10 == 0) {
+            if (iteration % 10 == 0) {
                 EncogDirectoryPersistence.saveObject(new File("network.eg"), trainer.getMethod());
             }
         } while (start > -1);
@@ -142,7 +128,7 @@ public class Launcher {
     private static class PacAndroidFitnessFunction implements CalculateScore {
         @Override
         public double calculateScore(final MLMethod method) {
-            final BasicNetwork network = (BasicNetwork) method;
+            final NEATNetwork network = (NEATNetwork) method;
             LevelLoader loader = new LevelLoader();
             Level level = loader.loadNextLevel();
 
@@ -156,15 +142,16 @@ public class Launcher {
                 public void onSnapshotTaken(int tick, double[] gameState, double[] inputState) {
                     if (tick % 3 != 0) return;
 //                if (true) return;
-                    network.compute(gameState, inputState);
+                    MLData in = new BasicMLData(gameState);
+                    MLData data = network.compute(in);
 
-                    if (inputState[0] > Math.random()) controller.leftPressed();
+                    if (data.getData(0) > Math.random()) controller.leftPressed();
                     else controller.leftReleased();
-                    if (inputState[1] > Math.random()) controller.rightPressed();
+                    if (data.getData(1) > Math.random()) controller.rightPressed();
                     else controller.rightReleased();
-                    if (inputState[2] > Math.random()) controller.upPressed();
+                    if (data.getData(2) > Math.random()) controller.upPressed();
                     else controller.upReleased();
-                    if (inputState[3] > Math.random()) controller.downPressed();
+                    if (data.getData(3) > Math.random()) controller.downPressed();
                     else controller.downReleased();
                 }
             });
@@ -180,7 +167,7 @@ public class Launcher {
 
 //            return level.getScore().getScore() + level.getLives() * 100;
 //            return level.getLives() * 100;
-            return frame + level.getScore().getScore()*10;
+            return frame / 10.0 + level.getScore().getScore() * 100.0;
         }
 
         private void updateLevel(Level level, LevelController controller, float delta) {

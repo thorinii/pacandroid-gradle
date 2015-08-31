@@ -103,23 +103,12 @@ public class LevelController {
         Grid g = l.getGrid();
 
         if (l.getAndyAndroid().isMarkedForKill()) {
-            for (int i = 0; i < g.getWidth(); i++) {
-                for (int j = 0; j < g.getHeight(); j++) {
-                    if (g.get(i, j) == Grid.GRID_ANDROID_SPAWN) {
-                        AndyAndroid entity = new AndyAndroid(g, level);
-                        entity.setPosition(new Vector2(
-                                i * Level.GRID_UNIT_SIZE, j
-                                * Level.GRID_UNIT_SIZE));
+            AndyAndroid entity = new AndyAndroid(g, level);
+            entity.setPosition(new Vector2(
+                    11 * Level.GRID_UNIT_SIZE,
+                    5 * Level.GRID_UNIT_SIZE));
 
-                        l.spawnEntity(entity);
-
-                        killNearbyApples(i * Level.GRID_UNIT_SIZE, j
-                                * Level.GRID_UNIT_SIZE, 3);
-
-                        return;
-                    }
-                }
-            }
+            l.spawnEntity(entity);
         }
     }
 
@@ -137,15 +126,13 @@ public class LevelController {
         Grid g = l.getGrid();
 
         if (l.getEntitiesByType(Apple.class).size() < l.getMaxEnemies()) {
-                        Apple entity = new Apple(g);
-                        entity.setLevel(level);
-                        entity.setPosition(new Vector2(
-                                6 * Level.GRID_UNIT_SIZE,
-                                8 * Level.GRID_UNIT_SIZE));
+            Apple entity = new Apple(g);
+            entity.setLevel(level);
+            entity.setPosition(new Vector2(
+                    12 * Level.GRID_UNIT_SIZE,
+                    8 * Level.GRID_UNIT_SIZE));
 
-                        l.spawnEntity(entity);
-
-                        return;
+            l.spawnEntity(entity);
         }
     }
 

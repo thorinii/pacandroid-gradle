@@ -98,30 +98,13 @@ public class LevelLoader {
 
     private void spawnAndroid(Level l) {
         Grid g = l.getGrid();
-        int x = -1;
-        int y = -1;
 
-        for (int i = 0; i < g.getWidth(); i++) {
-            for (int j = 0; j < g.getHeight(); j++) {
-                if (g.get(i, j) == Grid.GRID_ANDROID_SPAWN) {
-                    x = i;
-                    y = j;
+        AndyAndroid entity = new AndyAndroid(g, l);
+        entity.setPosition(new Vector2(
+                11 * Level.GRID_UNIT_SIZE,
+                5 * Level.GRID_UNIT_SIZE));
 
-                    break;
-                }
-            }
-        }
-
-        if (x != -1 && y != -1) {
-            AndyAndroid entity = new AndyAndroid(g, l);
-
-            entity.setPosition(new Vector2(x * Level.GRID_UNIT_SIZE, y
-                    * Level.GRID_UNIT_SIZE));
-
-            l.spawnEntity(entity);
-        } else {
-            throw new IllegalStateException("Could not find Android Spawner");
-        }
+        l.spawnEntity(entity);
     }
 
     private void randomisePowerups(Level level) {

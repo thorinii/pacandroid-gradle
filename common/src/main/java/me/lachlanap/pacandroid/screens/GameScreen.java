@@ -12,14 +12,15 @@ import me.lachlanap.pacandroid.PacAndroidGame;
 import me.lachlanap.pacandroid.controller.LevelController;
 import me.lachlanap.pacandroid.controller.SteeringController;
 import me.lachlanap.pacandroid.model.Level;
-import me.lachlanap.pacandroid.model.Powerup;
 import me.lachlanap.pacandroid.recorder.GameRecorder;
 import me.lachlanap.pacandroid.stats.HeatMap;
 import me.lachlanap.pacandroid.util.AppLog;
 import me.lachlanap.pacandroid.view.DefaultLevelRenderer;
 import me.lachlanap.pacandroid.view.LevelRenderer;
 import me.lachlanap.pacandroid.view.fonts.FontRenderer;
-import org.encog.neural.networks.BasicNetwork;
+import org.encog.ml.data.MLData;
+import org.encog.ml.data.basic.BasicMLData;
+import org.encog.neural.neat.NEATPopulation;
 import org.encog.persist.EncogDirectoryPersistence;
 
 import java.io.*;
@@ -119,21 +120,22 @@ public class GameScreen extends AbstractScreen {
 
         if (mode == PacAndroidGame.Mode.PlayingWithNeuralNetwork)
             gameRecorder.setListener(new GameRecorder.Listener() {
-                BasicNetwork network = (BasicNetwork) EncogDirectoryPersistence.loadObject(new File("network.eg"));
+                NEATPopulation network = (NEATPopulation) EncogDirectoryPersistence.loadObject(new File("network.eg"));
 
                 @Override
                 public void onSnapshotTaken(int tick, double[] gameState, double[] inputState) {
                     if (tick % 3 != 0) return;
 //                if (true) return;
-                    network.compute(gameState, inputState);
+                    MLData in = new BasicMLData(gameState);
+                    MLData data = network.compute(in);
 
-                    if (inputState[0] > Math.random()) controller.leftPressed();
+                    if (data.getData(0) > Math.random()) controller.leftPressed();
                     else controller.leftReleased();
-                    if (inputState[1] > Math.random()) controller.rightPressed();
+                    if (data.getData(1) > Math.random()) controller.rightPressed();
                     else controller.rightReleased();
-                    if (inputState[2] > Math.random()) controller.upPressed();
+                    if (data.getData(2) > Math.random()) controller.upPressed();
                     else controller.upReleased();
-                    if (inputState[3] > Math.random()) controller.downPressed();
+                    if (data.getData(3) > Math.random()) controller.downPressed();
                     else controller.downReleased();
                 }
             });
