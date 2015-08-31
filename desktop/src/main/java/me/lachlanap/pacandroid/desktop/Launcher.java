@@ -116,6 +116,7 @@ public class Launcher {
 
             int iteration = trainer.getIteration();
 
+            population.getSpecies().get(0).getBestScore();
             System.out.println("Iteration #" + Format.formatInteger(iteration)
                                        + " Best:" + Format.formatDouble(trainer.getBestGenome().getScore(), 0)
                                        + " elapsed time = " + Format.formatTimeSpan((int) elapsedSeconds));
@@ -140,6 +141,17 @@ public class Launcher {
         @Override
         public double calculateScore(final MLMethod method) {
             final NEATNetwork network = (NEATNetwork) method;
+
+            final int COUNT = 19;
+            double total = 0;
+
+            for (int i = 0; i < COUNT; i++)
+                total += calculateScoreOnce(network);
+
+            return total / COUNT;
+        }
+
+        private double calculateScoreOnce(final NEATNetwork network) {
             LevelLoader loader = new LevelLoader();
             Level level = loader.loadNextLevel();
 

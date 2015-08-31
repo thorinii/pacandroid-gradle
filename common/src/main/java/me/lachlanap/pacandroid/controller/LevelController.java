@@ -103,22 +103,30 @@ public class LevelController {
         Grid g = l.getGrid();
 
         if (l.getAndyAndroid().isMarkedForKill()) {
-            AndyAndroid entity = new AndyAndroid(g, level);
+            AndyAndroid entity = new AndyAndroid(g, l);
+            int x = 11;
+            int y = 5;
+            for (int i = 0; i < 10; i++) {
+                if (g.isEmpty(x + i, y, Grid.GRID_WALL)) {
+                    x += i;
+                    break;
+                } else if (g.isEmpty(x - i, y, Grid.GRID_WALL)) {
+                    x -= i;
+                    break;
+                } else if (g.isEmpty(x, y + i, Grid.GRID_WALL)) {
+                    y += i;
+                    break;
+                } else if (g.isEmpty(x, y - i, Grid.GRID_WALL)) {
+                    y -= i;
+                    break;
+                }
+            }
+
             entity.setPosition(new Vector2(
-                    11 * Level.GRID_UNIT_SIZE,
-                    5 * Level.GRID_UNIT_SIZE));
+                    x * Level.GRID_UNIT_SIZE,
+                    y * Level.GRID_UNIT_SIZE));
 
             l.spawnEntity(entity);
-        }
-    }
-
-    private void killNearbyApples(int x, int y, int dist) {
-        for (Apple a : level.getEntitiesByType(Apple.class)) {
-            System.out.println(a.getPosition().dst(x, y));
-
-            if (a.getPosition().dst(x, y) < dist) {
-                a.markForKill();
-            }
         }
     }
 
@@ -126,11 +134,29 @@ public class LevelController {
         Grid g = l.getGrid();
 
         if (l.getEntitiesByType(Apple.class).size() < l.getMaxEnemies()) {
+            int x = 12;
+            int y = 8;
+            for (int i = 0; i < 10; i++) {
+                if (g.isEmpty(x + i, y, Grid.GRID_WALL)) {
+                    x += i;
+                    break;
+                } else if (g.isEmpty(x - i, y, Grid.GRID_WALL)) {
+                    x -= i;
+                    break;
+                } else if (g.isEmpty(x, y + i, Grid.GRID_WALL)) {
+                    y += i;
+                    break;
+                } else if (g.isEmpty(x, y - i, Grid.GRID_WALL)) {
+                    y -= i;
+                    break;
+                }
+            }
+
             Apple entity = new Apple(g);
             entity.setLevel(level);
             entity.setPosition(new Vector2(
-                    12 * Level.GRID_UNIT_SIZE,
-                    8 * Level.GRID_UNIT_SIZE));
+                    x * Level.GRID_UNIT_SIZE,
+                    y * Level.GRID_UNIT_SIZE));
 
             l.spawnEntity(entity);
         }

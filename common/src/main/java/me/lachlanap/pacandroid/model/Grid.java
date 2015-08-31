@@ -14,6 +14,7 @@ public class Grid {
     public static boolean isWall(int gridSpace) {
         return gridSpace == GRID_WALL || gridSpace == GRID_ENEMY_SPAWN;
     }
+
     private int[][] wallGrid;
     private int unitSize;
 
@@ -60,7 +61,7 @@ public class Grid {
     /**
      * Safe get. If (x,y) are in bounds, then returns the value, else returns
      * <code>def</code>.
-     * <p/>
+     * <p>
      */
     public int get(int x, int y, int def) {
         try {
@@ -70,10 +71,15 @@ public class Grid {
         }
     }
 
+    public boolean isEmpty(int x, int y, int def) {
+        int cell = get(x, y, def);
+        return !isWall(cell);
+    }
+
     /**
      * Safe get. If (x,y) are in bounds, then returns the value, else returns
      * <code>def</code>.
-     * <p/>
+     * <p>
      */
     public int get(float x, float y, int def) {
         try {

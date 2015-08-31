@@ -22,7 +22,7 @@ public class Apple extends DynamicEntity {
     private Path path;
 
     public Apple(Grid grid) {
-        super(new Vector2(1.5f, 1.5f));
+        super(new Vector2(1.2f, 1.2f));
         this.grid = grid;
         this.pathFinder = new PathFinder(grid);
 

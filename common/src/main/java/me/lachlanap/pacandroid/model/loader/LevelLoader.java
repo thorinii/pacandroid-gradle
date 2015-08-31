@@ -19,7 +19,6 @@ public class LevelLoader {
     private static final String LEVELS_FILE = "builtin-levels.txt";
     private final LevelFileReader reader = new LevelFileReader();
     private final String[] files;
-    private int currentLevel = 0;
 
     public LevelLoader() {
         files = loadBuiltinLevels();
@@ -50,8 +49,7 @@ public class LevelLoader {
     }
 
     public Level loadNextLevel() {
-        Level l = loadLevel(files[currentLevel]);
-        currentLevel++;
+        Level l = loadLevel(files[(int) (Math.random() * files.length)]);
         return l;
     }
 
@@ -100,9 +98,27 @@ public class LevelLoader {
         Grid g = l.getGrid();
 
         AndyAndroid entity = new AndyAndroid(g, l);
+        int x = 11;
+        int y = 5;
+        for (int i = 0; i < 10; i++) {
+            if (g.isEmpty(x + i, y, Grid.GRID_WALL)) {
+                x += i;
+                break;
+            } else if (g.isEmpty(x - i, y, Grid.GRID_WALL)) {
+                x -= i;
+                break;
+            } else if (g.isEmpty(x, y + i, Grid.GRID_WALL)) {
+                y += i;
+                break;
+            } else if (g.isEmpty(x, y - i, Grid.GRID_WALL)) {
+                y -= i;
+                break;
+            }
+        }
+
         entity.setPosition(new Vector2(
-                11 * Level.GRID_UNIT_SIZE,
-                5 * Level.GRID_UNIT_SIZE));
+                x * Level.GRID_UNIT_SIZE,
+                y * Level.GRID_UNIT_SIZE));
 
         l.spawnEntity(entity);
     }
