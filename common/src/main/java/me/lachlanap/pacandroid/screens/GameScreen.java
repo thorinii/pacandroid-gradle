@@ -23,9 +23,13 @@ import org.encog.ml.data.basic.BasicMLData;
 import org.encog.neural.neat.NEATPopulation;
 import org.encog.persist.EncogDirectoryPersistence;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 /**
@@ -120,12 +124,12 @@ public class GameScreen extends AbstractScreen {
 
         if (mode == PacAndroidGame.Mode.PlayingWithNeuralNetwork)
             gameRecorder.setListener(new GameRecorder.Listener() {
-                NEATPopulation network = (NEATPopulation) EncogDirectoryPersistence.loadObject(new File("network.eg"));
+                NEATPopulation network = (NEATPopulation) EncogDirectoryPersistence.loadObject(
+                        Paths.get("network.eg").toAbsolutePath().toFile());
 
                 @Override
                 public void onSnapshotTaken(int tick, double[] gameState, double[] inputState) {
                     if (tick % 3 != 0) return;
-//                if (true) return;
                     MLData in = new BasicMLData(gameState);
                     MLData data = network.compute(in);
 

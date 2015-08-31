@@ -30,6 +30,10 @@ import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.util.Format;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * @author lachlan
@@ -39,7 +43,7 @@ public class Launcher {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
         String mode;
         if (args.length == 1)
             mode = args[0];
@@ -86,12 +90,12 @@ public class Launcher {
         }
     }
 
-    private static void trainHeadless() {
+    private static void trainHeadless() throws IOException, InterruptedException {
         Gdx.files = new LwjglFiles();
 
-        File localNetwork = new File("network.eg");
+        File localNetwork = Paths.get("network.eg").toAbsolutePath().toFile();
         final NEATPopulation population;
-        if(localNetwork.exists()) {
+        if (localNetwork.exists()) {
             population = (NEATPopulation) EncogDirectoryPersistence.loadObject(localNetwork);
         } else {
             population = new NEATPopulation(77, 4, 1000);
@@ -102,6 +106,7 @@ public class Launcher {
 
         TrainEA trainer = NEATUtil.constructNEATTrainer(population, fitnessFunction);
 
+        final long trainingID = trainer.hashCode() * 100000 + (int) (100000 * Math.random());
         final long start = System.currentTimeMillis();
         do {
             trainer.iteration();
@@ -116,7 +121,13 @@ public class Launcher {
                                        + " elapsed time = " + Format.formatTimeSpan((int) elapsedSeconds));
 
             if (iteration % 10 == 0) {
-                EncogDirectoryPersistence.saveObject(new File("network.eg"), trainer.getMethod());
+                Path sessionFile = Paths.get("save_network_neat" + trainingID + ".eg").toAbsolutePath();
+                Path globalFile = Paths.get("network.eg").toAbsolutePath();
+                System.out.println("Checkpointing");
+
+                EncogDirectoryPersistence.saveObject(sessionFile.toFile(), trainer.getMethod());
+                Files.deleteIfExists(globalFile);
+                Files.copy(sessionFile, Paths.get("network.eg"));
             }
         } while (start > -1);
         trainer.finishTraining();
@@ -141,7 +152,6 @@ public class Launcher {
                 @Override
                 public void onSnapshotTaken(int tick, double[] gameState, double[] inputState) {
                     if (tick % 3 != 0) return;
-//                if (true) return;
                     MLData in = new BasicMLData(gameState);
                     MLData data = network.compute(in);
 
@@ -167,7 +177,7 @@ public class Launcher {
 
 //            return level.getScore().getScore() + level.getLives() * 100;
 //            return level.getLives() * 100;
-            return frame / 10.0 + level.getScore().getScore() * 100.0;
+            return frame / 79.0 + level.getScore().getScore() * 112.3 + level.getLives() * 1000;
         }
 
         private void updateLevel(Level level, LevelController controller, float delta) {
